@@ -12,6 +12,6 @@ RUN npm install
 RUN npm install pm2 -g
 
 # start app
-EXPOSE 8080
+EXPOSE 9090
 
 CMD ["pm2-runtime", "start", "server.js", "-i", "max"]

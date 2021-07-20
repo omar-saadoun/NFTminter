@@ -142,7 +142,7 @@ const Form = ({
       // If Metamask use backend
       if (providerMetamask) {
         if (adult) {
-          const res = await axios.post(`/api/add`, {
+          const res = await axios.post(`http://localhost:8080/add`, {
             minter: signerAddress,
             name: name,
             description: desc,
@@ -159,7 +159,7 @@ const Form = ({
           toast("NFT Added", { type: "success" });
           resetForm();
         } else {
-          const res = await axios.post(`/api/mint`, {
+          const res = await axios.post(`http://localhost:9090/mint`, {
             minter: signerAddress,
             type: nftType,
             uri: "https://gateway.pinata.cloud/ipfs/" + ipfsHash,

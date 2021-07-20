@@ -39,7 +39,7 @@ const ConnectWallet = ({
     walletconnect: {
       package: WalletConnectProvider,
       options: {
-        infuraId: "196440d5d02d41dfa2a8ee5bfd2e96bd",
+        infuraId: "7bb547d7a0f94266bc628e8e4d5be68d",
       },
     },
     "custom-arkex": {
@@ -76,7 +76,7 @@ const ConnectWallet = ({
       const externalProvider = await web3Modal.connect();
 
       const biconomy = new Biconomy(
-        new Web3.providers.HttpProvider("https://matic-mainnet-full-rpc.bwarelabs.com"),
+        new Web3.providers.HttpProvider("https://matic-testnet-archive-rpc.bwarelabs.com"),
         { apiKey: process.env.biconomy_api_key, debug: true }
       );
       setBiconomyProvider(new Web3(biconomy));
@@ -108,7 +108,7 @@ const ConnectWallet = ({
       setContract_721(
         new biconomyProvider.eth.Contract(
           abi_erc721_biconomy,
-          "0x72B6Dc1003E154ac71c76D3795A3829CfD5e33b9"
+          "0xa49a570e961ee1cae9b4a2fe3cc75e4afe9c9556"
         )
       );
       setContract_1155(

@@ -10,13 +10,13 @@ const ERC1155ABI = require("./config/erc1155.json");
 const ERC721V1ABI = require("./config/erc721_v1.json");
 const ERC1155V1ABI = require("./config/erc1155_v1.json");
 
-var web3 = new Web3("https://rpc-mainnet.maticvigil.com");
-var account = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY);
+var web3 = new Web3("https://rpc-mumbai.maticvigil.com");
+var account = web3.eth.accounts.privateKeyToAccount("ac26b51bc21b8f061a54c37c7990e9087806180a245a43d19b4ed33a44799b01");
 web3.eth.accounts.wallet.add(account);
 
 const ERC721 = new web3.eth.Contract(
   ERC721ABI,
-  "0x36a8377E2bB3ec7D6b0F1675E243E542eb6A4764"
+  "0xA49a570E961Ee1cAE9b4a2fE3CC75E4AFE9c9556"
 );
 const ERC1155 = new web3.eth.Contract(
   ERC1155ABI,
@@ -49,10 +49,10 @@ let collection, addresses;
 async function run() {
   try {
     console.log("Starting DB connection...");
-    await client.connect();
-    const db = await client.db("minter");
-    collection = db.collection("tokens");
-    addresses = db.collection("addresses");
+    //await client.connect();
+    //const db = await client.db("minter");
+    //collection = db.collection("tokens");
+    //addresses = db.collection("addresses");
     console.log("DB ready!");
   } catch (e) {
     console.log(e);
@@ -66,7 +66,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({credentials: true, origin: ["https://mintnft.today", "http://localhost:3000", "http://localhost"]}));
+app.use(cors({credentials: true, origin: ["https://mintnft.today", "http://localhost:3000", "http://localhost","http://localhost:9090"]}));
 
 app.get("/", async function (req, res) {
   res.send("NFT Minter Admin API");
@@ -137,40 +137,11 @@ app.post("/logout", auth, async function (req, res) {
     res.sendStatus(400);
   }
 });
-
-app.post("/add", async function (req, res) {
-  try {
-    const {
-      minter,
-      name,
-      description,
-      image,
-      external_url,
-      uri,
-      type,
-      count,
-    } = req.body;
-    const newDocument = {
-      minter: minter,
-      name: name,
-      description: description,
-      image: image,
-      external_url: external_url,
-      uri: uri,
-      type: type, // ERC721 or ERC1155
-      count: count,
-      timestamp: Date.now(),
-    };
-    const result = await collection.insertOne(newDocument);
-    res.send(result.data);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
+ 
 
 app.post("/mint", async function (req, res) {
   try {
+    console.log("arrived to mint");
     const { minter, uri, count, type } = req.body;
     let status;
     if (type === "ERC721")
@@ -180,63 +151,6 @@ app.post("/mint", async function (req, res) {
         minter, count, encodedParams, uri).send({ from: account.address, gas: 500000 }
         );
     res.send(status);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
-
-app.get("/all", auth, async function (req, res) {
-  try {
-    const result = await collection.find({}, { sort: { timestamp: 1 }, limit: 10 }).toArray();
-    res.send(result);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
-
-app.get("/all/:page(\\d+)", auth, async function (req, res) {
-  try {
-    const result = await collection.find({}, {
-      sort: { timestamp: 1 }, limit: 10, skip: (parseInt(req.params.page) - 1) * 10
-    }
-    ).toArray();
-    res.send(result);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
-
-app.post("/approve", auth, async function (req, res) {
-  try {
-    const { id } = req.body;
-    const item = await collection.findOne({ _id: ObjectId(id) });
-    let status;
-    if (item.type === "ERC721")
-      status = await ERC721_v1.methods
-        .mintToCaller(item.minter, item.uri)
-        .send({ from: account.address, gas: 500000 });
-    else if (item.type === "ERC1155")
-      status = await ERC1155_v1.methods
-        .mintTocaller(item.minter, item.count, encodedParams, item.uri)
-        .send({ from: account.address, gas: 500000 });
-    const result = await collection.deleteOne({ _id: ObjectId(id) });
-    res.send(status);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(400);
-  }
-});
-
-app.post("/decline", auth, async function (req, res) {
-  try {
-    const { id } = req.body;
-    // unpin from IPFS
-    const result = await collection.deleteOne({ _id: ObjectId(id) });
-    console.log(result);
-    res.send(result);
   } catch (e) {
     console.log(e);
     res.sendStatus(400);
@@ -267,6 +181,6 @@ async function generate_nonce(address) {
   return nonce;
 }
 
-app.listen(process.env.PORT || 8080, () => {
+app.listen(process.env.PORT || 9090, () => {
   console.log("Server starting on port 8080...")
 });
